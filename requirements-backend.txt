@@ -1,2 +1,9 @@
-"""Flask-CORS configuration."""
-from flask_cors import CORS
+flask==3.0.0
+flask-cors==4.0.0
+requests==2.31.0
+boto3==1.28.85
+pyyaml==6.0.1
+pydantic==2.5.0
+pydantic-settings==2.1.0
+aws-lambda-powertools==2.26.0
+gunicorn==21.2.0
