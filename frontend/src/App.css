@@ -1,0 +1,139 @@
+/* App.css - Main application styles */
+
+:root {
+  --primary: #2196F3;
+  --success: #4CAF50;
+  --error: #f44336;
+  --warning: #ff9800;
+  --dark: #212121;
+  --light: #f5f5f5;
+  --border: #ddd;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: var(--light);
+  color: var(--dark);
+}
+
+.App {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-header {
+  background: linear-gradient(135deg, var(--primary) 0%, #1976D2 100%);
+  color: white;
+  padding: 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.header-content h1 {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.header-content p {
+  font-size: 1.1rem;
+  opacity: 0.9;
+}
+
+.app-nav {
+  background: white;
+  border-bottom: 2px solid var(--border);
+  display: flex;
+  gap: 1rem;
+  padding: 0 2rem;
+  overflow-x: auto;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+}
+
+.nav-button {
+  background: none;
+  border: none;
+  padding: 1rem 1.5rem;
+  font-size: 1rem;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  transition: all 0.3s ease;
+  color: var(--dark);
+}
+
+.nav-button:hover {
+  color: var(--primary);
+}
+
+.nav-button.active {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+}
+
+.app-main {
+  flex: 1;
+  padding: 2rem;
+  max-width: 1400px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.app-footer {
+  background: var(--dark);
+  color: white;
+  text-align: center;
+  padding: 1.5rem;
+  margin-top: auto;
+}
+
+.deployment-notification {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  padding: 1rem 2rem;
+  background: var(--success);
+  color: white;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  animation: slideIn 0.3s ease;
+}
+
+.deployment-notification.error {
+  background: var(--error);
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(400px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .header-content h1 {
+    font-size: 1.8rem;
+  }
+
+  .app-nav {
+    padding: 0 1rem;
+  }
+
+  .nav-button {
+    padding: 1rem;
+    font-size: 0.9rem;
+  }
+
+  .app-main {
+    padding: 1rem;
+  }
+}
