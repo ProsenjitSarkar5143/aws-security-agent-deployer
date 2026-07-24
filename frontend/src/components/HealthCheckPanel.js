@@ -1,4 +1,3 @@
-// React component - HealthCheckPanel.js
 import React, { useState, useEffect } from 'react';
 import '../styles/HealthCheckPanel.css';
 
@@ -17,23 +16,14 @@ function HealthCheckPanel() {
           setInstances(data.data.instances || []);
         }
       })
-      .catch(err => console.error('Error fetching instances:', err));
+      .catch(err => console.error('Error:', err));
   }, []);
-
-  const handleInstanceToggle = (instanceId) => {
-    setSelectedInstances(prev => 
-      prev.includes(instanceId) 
-        ? prev.filter(id => id !== instanceId)
-        : [...prev, instanceId]
-    );
-  };
 
   const handleHealthCheck = async () => {
     if (selectedInstances.length === 0) {
       alert('Please select at least one instance');
       return;
     }
-
     setLoading(true);
     try {
       const response = await fetch('/api/health-check', {
@@ -44,16 +34,10 @@ function HealthCheckPanel() {
           instance_ids: selectedInstances
         })
       });
-
       const data = await response.json();
       setResults(data);
     } catch (error) {
-      console.error('Health check error:', error);
-      setResults({
-        success: false,
-        message: 'Health check failed',
-        error: error.message
-      });
+      console.error('Error:', error);
     } finally {
       setLoading(false);
     }
@@ -62,7 +46,6 @@ function HealthCheckPanel() {
   return (
     <div className="health-check-panel">
       <h2>Agent Health Check</h2>
-      
       <div className="health-check-form">
         <div className="form-group">
           <label>Agent Type:</label>
@@ -71,52 +54,35 @@ function HealthCheckPanel() {
             <option value="crowdstrike">CrowdStrike Falcon</option>
           </select>
         </div>
-
-        <button 
-          className="health-check-button" 
-          onClick={handleHealthCheck} 
-          disabled={loading || selectedInstances.length === 0}
-        >
+        <button className="health-check-button" onClick={handleHealthCheck} disabled={loading}>
           {loading ? 'Checking...' : '❤️ Run Health Check'}
         </button>
       </div>
-
       <div className="instances-section">
-        <h3>Select Instances ({selectedInstances.length} selected)</h3>
+        <h3>Select Instances ({selectedInstances.length})</h3>
         <div className="instances-list">
-          {instances.length > 0 ? (
-            instances.map(instance => (
-              <div key={instance.instance_id} className="instance-item">
-                <input
-                  type="checkbox"
-                  checked={selectedInstances.includes(instance.instance_id)}
-                  onChange={() => handleInstanceToggle(instance.instance_id)}
-                />
-                <div className="instance-details">
-                  <p><strong>{instance.tags.Name || instance.instance_id}</strong></p>
-                  <p>{instance.instance_type} | {instance.private_ip}</p>
-                  <p className="state">State: {instance.state}</p>
-                </div>
+          {instances.map(inst => (
+            <div key={inst.instance_id} className="instance-item">
+              <input type="checkbox" checked={selectedInstances.includes(inst.instance_id)}
+                onChange={(e) => {
+                  if (e.target.checked) {
+                    setSelectedInstances([...selectedInstances, inst.instance_id]);
+                  } else {
+                    setSelectedInstances(selectedInstances.filter(id => id !== inst.instance_id));
+                  }
+                }} />
+              <div className="instance-details">
+                <p><strong>{inst.tags.Name || inst.instance_id}</strong></p>
+                <p>{inst.private_ip}</p>
               </div>
-            ))
-          ) : (
-            <p>No instances available</p>
-          )}
+            </div>
+          ))}
         </div>
       </div>
-
       {results && (
-        <div className={`health-check-result ${results.success ? 'success' : 'error'}`}>
-          <h3>{results.success ? '✅ Health Check Complete' : '❌ Error'}</h3>
+        <div className={`health-check-result ${results.success ? '' : 'error'}`}>
+          <h3>{results.success ? '✅ Check Complete' : '❌ Error'}</h3>
           <p>{results.message}</p>
-          {results.data && (
-            <div className="result-stats">
-              <p>Total: {results.data.total_instances}</p>
-              <p className="healthy">Healthy: {results.data.healthy}</p>
-              <p className="unhealthy">Unhealthy: {results.data.unhealthy}</p>
-              {results.data.pending > 0 && <p>Pending: {results.data.pending}</p>}
-            </div>
-          )}
         </div>
       )}
     </div>

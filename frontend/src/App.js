@@ -8,12 +8,10 @@ import HealthCheckPanel from './components/HealthCheckPanel';
 
 function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
-  const [loading, setLoading] = useState(false);
-  const [config, setConfig] = useState(null);
   const [deploymentStatus, setDeploymentStatus] = useState(null);
+  const [config, setConfig] = useState(null);
 
   useEffect(() => {
-    // Fetch configuration on mount
     fetch('/api/config')
       .then(res => res.json())
       .then(data => {
@@ -21,7 +19,7 @@ function App() {
           setConfig(data.data);
         }
       })
-      .catch(err => console.error('Error fetching config:', err));
+      .catch(err => console.error('Error:', err));
   }, []);
 
   return (
@@ -34,28 +32,20 @@ function App() {
       </header>
 
       <nav className="app-nav">
-        <button 
-          className={`nav-button ${activeTab === 'dashboard' ? 'active' : ''}`}
-          onClick={() => setActiveTab('dashboard')}
-        >
+        <button className={`nav-button ${activeTab === 'dashboard' ? 'active' : ''}`}
+          onClick={() => setActiveTab('dashboard')}>
           📊 Dashboard
         </button>
-        <button 
-          className={`nav-button ${activeTab === 'instances' ? 'active' : ''}`}
-          onClick={() => setActiveTab('instances')}
-        >
-          💾 Instances
+        <button className={`nav-button ${activeTab === 'instances' ? 'active' : ''}`}
+          onClick={() => setActiveTab('instances')}>
+          💻 Instances
         </button>
-        <button 
-          className={`nav-button ${activeTab === 'deploy' ? 'active' : ''}`}
-          onClick={() => setActiveTab('deploy')}
-        >
+        <button className={`nav-button ${activeTab === 'deploy' ? 'active' : ''}`}
+          onClick={() => setActiveTab('deploy')}>
           ⚡ Deploy
         </button>
-        <button 
-          className={`nav-button ${activeTab === 'health' ? 'active' : ''}`}
-          onClick={() => setActiveTab('health')}
-        >
+        <button className={`nav-button ${activeTab === 'health' ? 'active' : ''}`}
+          onClick={() => setActiveTab('health')}>
           ❤️ Health Check
         </button>
       </nav>
@@ -66,13 +56,6 @@ function App() {
         {activeTab === 'deploy' && <DeploymentPanel onStatusChange={setDeploymentStatus} />}
         {activeTab === 'health' && <HealthCheckPanel />}
       </main>
-
-      {deploymentStatus && (
-        <div className="deployment-notification">
-          <p>{deploymentStatus.message}</p>
-          {deploymentStatus.error && <p className="error">{deploymentStatus.error}</p>}
-        </div>
-      )}
 
       <footer className="app-footer">
         <p>AWS Security Agent Deployer v1.0.0 | Built with ❤️ for security teams</p>

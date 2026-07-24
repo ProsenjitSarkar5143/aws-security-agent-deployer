@@ -1,24 +1,13 @@
 /* Dashboard.css */
 
-.dashboard {
-  animation: fadeIn 0.3s ease;
-}
+.dashboard { animation: fadeIn 0.3s ease; }
 
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-.dashboard h2 {
-  margin-bottom: 2rem;
-  font-size: 2rem;
-}
+.dashboard h2 { margin-bottom: 2rem; font-size: 2rem; }
 
 .config-info {
   background: white;
@@ -28,10 +17,7 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.config-info h3 {
-  margin-bottom: 1rem;
-  color: #2196F3;
-}
+.config-info h3 { margin-bottom: 1rem; color: #2196F3; }
 
 .config-grid {
   display: grid;
@@ -51,12 +37,6 @@
   font-weight: 600;
   margin-bottom: 0.5rem;
   color: #666;
-}
-
-.config-item span {
-  font-size: 1.1rem;
-  color: #2196F3;
-  font-weight: 500;
 }
 
 .stats-container {
@@ -93,33 +73,9 @@
   color: #2196F3;
 }
 
-.stat-card.success .stat-value {
-  color: #4CAF50;
-}
-
-.stat-card.error .stat-value {
-  color: #f44336;
-}
-
-.deployments-history {
-  background: white;
-  padding: 1.5rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.deployments-history h3 {
-  margin-bottom: 1rem;
-  color: #2196F3;
-}
-
 .deployments-table {
   width: 100%;
   border-collapse: collapse;
-}
-
-.deployments-table thead {
-  background: #f5f5f5;
 }
 
 .deployments-table th,
@@ -129,29 +85,12 @@
   border-bottom: 1px solid #ddd;
 }
 
-.deployments-table tr:hover {
-  background: #f9f9f9;
-}
-
 .badge {
   display: inline-block;
   padding: 0.25rem 0.75rem;
   border-radius: 20px;
   font-size: 0.85rem;
   font-weight: 600;
-}
-
-.badge.completed {
   background: #c8e6c9;
   color: #2e7d32;
-}
-
-.badge.failed {
-  background: #ffcdd2;
-  color: #c62828;
-}
-
-.badge.pending {
-  background: #fff3cd;
-  color: #856404;
 }

@@ -1,13 +1,8 @@
 /* InstanceList.css */
 
-.instance-list-container {
-  animation: fadeIn 0.3s ease;
-}
+.instance-list-container { animation: fadeIn 0.3s ease; }
 
-.instance-list-container h2 {
-  margin-bottom: 2rem;
-  font-size: 2rem;
-}
+.instance-list-container h2 { margin-bottom: 2rem; font-size: 2rem; }
 
 .filter-section {
   display: flex;
@@ -24,8 +19,6 @@
   border: 1px solid #ddd;
   border-radius: 4px;
   font-size: 1rem;
-  flex: 1;
-  max-width: 200px;
 }
 
 .refresh-button {
@@ -35,19 +28,6 @@
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.refresh-button:hover {
-  background: #1976D2;
-}
-
-.loading,
-.no-instances {
-  text-align: center;
-  padding: 2rem;
-  color: #666;
-  font-size: 1.1rem;
 }
 
 .instances-grid {
@@ -79,10 +59,7 @@
   align-items: center;
 }
 
-.card-header h3 {
-  margin: 0;
-  font-size: 1.1rem;
-}
+.card-header h3 { margin: 0; font-size: 1.1rem; }
 
 .state-badge {
   display: inline-block;
@@ -94,88 +71,6 @@
   color: white;
 }
 
-.state-badge.running {
-  background: rgba(76, 175, 80, 0.8);
-}
+.card-body { padding: 1rem; }
 
-.state-badge.stopped {
-  background: rgba(244, 67, 54, 0.8);
-}
-
-.card-body {
-  padding: 1rem;
-}
-
-.card-body p {
-  margin: 0.5rem 0;
-  font-size: 0.9rem;
-}
-
-.card-body strong {
-  color: #333;
-}
-
-.tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-top: 1rem;
-}
-
-.tag {
-  display: inline-block;
-  padding: 0.25rem 0.5rem;
-  background: #f0f0f0;
-  border-radius: 4px;
-  font-size: 0.8rem;
-  color: #666;
-}
-
-.instance-details-modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
-
-.modal-content {
-  background: white;
-  padding: 2rem;
-  border-radius: 8px;
-  max-width: 500px;
-  width: 90%;
-  position: relative;
-}
-
-.close-button {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
-  color: #666;
-}
-
-.modal-content h3 {
-  margin-bottom: 1.5rem;
-  color: #333;
-}
-
-.details p {
-  margin: 1rem 0;
-  display: flex;
-  justify-content: space-between;
-}
-
-.details strong {
-  color: #333;
-  min-width: 150px;
-}
+.card-body p { margin: 0.5rem 0; font-size: 0.9rem; }

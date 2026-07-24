@@ -91,34 +91,6 @@ body {
   margin-top: auto;
 }
 
-.deployment-notification {
-  position: fixed;
-  bottom: 2rem;
-  right: 2rem;
-  padding: 1rem 2rem;
-  background: var(--success);
-  color: white;
-  border-radius: 4px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-  animation: slideIn 0.3s ease;
-}
-
-.deployment-notification.error {
-  background: var(--error);
-}
-
-@keyframes slideIn {
-  from {
-    transform: translateX(400px);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
-}
-
-/* Responsive */
 @media (max-width: 768px) {
   .header-content h1 {
     font-size: 1.8rem;
