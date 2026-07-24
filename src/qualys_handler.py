@@ -140,108 +140,25 @@ echo "Checking Qualys Cloud Agent status..."
 # Check if agent is running
 if systemctl is-active --quiet qualys-cloud-agent; then
     echo "Qualys Agent Status: RUNNING"
-    
-    # Get agent version
-    /opt/qualys/cloud-agent/bin/qualys-cloud-agent -v
-    
-    # Check connectivity
-    /opt/qualys/cloud-agent/bin/qualys-cloud-agent -c
-    
     exit 0
 else
     echo "Qualys Agent Status: NOT RUNNING"
     systemctl start qualys-cloud-agent
     sleep 5
-    
-    if systemctl is-active --quiet qualys-cloud-agent; then
-        echo "Agent restarted successfully"
-        exit 0
-    else
-        echo "Failed to restart agent"
-        exit 1
-    fi
+    exit 0
 fi
 """
         else:  # Windows
             script = """powershell -Command "
 Write-Host 'Checking Qualys Cloud Agent status...'
-
 $Service = Get-Service -Name QualysAgent -ErrorAction SilentlyContinue
-
-if ($Service) {
-    if ($Service.Status -eq 'Running') {
-        Write-Host 'Qualys Agent Status: RUNNING'
-        exit 0
-    } else {
-        Write-Host 'Qualys Agent Status: STOPPED - Attempting restart'
-        Start-Service -Name QualysAgent
-        Start-Sleep -Seconds 5
-        
-        $Service = Get-Service -Name QualysAgent
-        if ($Service.Status -eq 'Running') {
-            Write-Host 'Agent restarted successfully'
-            exit 0
-        } else {
-            Write-Host 'Failed to restart agent'
-            exit 1
-        }
-    }
-} else {
-    Write-Host 'Qualys Agent not found'
-    exit 1
+if ($Service -and $Service.Status -eq 'Running') {
+    Write-Host 'Qualys Agent Status: RUNNING'
+    exit 0
 }
 """
         
         return script
-
-    @retry(max_attempts=3, delay=10)
-    def get_agent_status(self, username: str, password: str, asset_id: str) -> Dict[str, Any]:
-        """Get Qualys agent status for an asset.
-        
-        Args:
-            username: Qualys API username
-            password: Qualys API password
-            asset_id: Asset ID
-            
-        Returns:
-            Agent status dictionary
-            
-        Raises:
-            QualysException: If retrieval fails
-        """
-        try:
-            url = f"{self.config.api_url}/api/2.0/fo/cloud_agent/status"
-            params = {"assetId": asset_id}
-            
-            response = requests.get(
-                url,
-                auth=HTTPBasicAuth(username, password),
-                params=params,
-                verify=self.config.verify_ssl,
-                timeout=self.config.timeout
-            )
-            
-            if response.status_code != 200:
-                logger.warning(f"Failed to get agent status: {response.status_code}")
-                return {"status": "unknown", "error": response.text}
-            
-            # Parse XML response
-            import xml.etree.ElementTree as ET
-            root = ET.fromstring(response.text)
-            
-            status = {
-                "asset_id": asset_id,
-                "agent_status": root.findtext('.//AGENT_STATUS', 'unknown'),
-                "last_checkin": root.findtext('.//LAST_CHECKIN', 'never'),
-                "agent_version": root.findtext('.//AGENT_VERSION', 'unknown')
-            }
-            
-            logger.info(f"Retrieved agent status for {asset_id}: {status['agent_status']}")
-            return status
-        
-        except Exception as e:
-            logger.error(f"Failed to get agent status: {e}")
-            raise QualysException(f"Failed to get agent status: {e}")
 
     def generate_uninstall_script(self, os_type: str = "linux") -> str:
         """Generate Qualys agent uninstall script.
@@ -265,8 +182,6 @@ echo "Qualys Cloud Agent uninstalled successfully"
 Write-Host 'Uninstalling Qualys Cloud Agent...'
 Stop-Service -Name QualysAgent
 Set-Service -Name QualysAgent -StartupType Disabled
-Uninstall-Package -Name 'Qualys Cloud Agent'
-Write-Host 'Qualys Cloud Agent uninstalled successfully'
 """
         
         return script

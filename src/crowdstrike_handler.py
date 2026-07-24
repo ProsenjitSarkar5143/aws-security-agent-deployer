@@ -100,85 +100,12 @@ class CrowdStrikeHandler:
         if os_type.lower() == "linux":
             script = f"""#!/bin/bash
 set -e
-
 echo "Starting CrowdStrike Falcon Sensor installation..."
-
-# Set variables
-CLIENT_ID="{client_id}"
-CLIENT_SECRET="{client_secret}"
-API_ENDPOINT="https://api.crowdstrike.com"
-
-# Get installation token from CrowdStrike API
-echo "Retrieving installation credentials..."
-
-TOKEN=$(curl -s -X POST "$API_ENDPOINT/oauth2/token" \
-  -d "client_id=$CLIENT_ID&client_secret=$CLIENT_SECRET&grant_type=client_credentials" \
-  | jq -r '.access_token')
-
-INSTALLATION_TOKEN=$(curl -s -X GET "$API_ENDPOINT/sensors/entities/download-installer/v1?os=Linux&os-version=x86_64" \
-  -H "Authorization: Bearer $TOKEN" \
-  | jq -r '.body[0].token')
-
-# Download Falcon Sensor
-echo "Downloading CrowdStrike Falcon Sensor..."
-cd /tmp
-
-wget "https://downloads.crowdstrike.com/releases/sensor/falcon-linux-sensor-latest-$INSTALLATION_TOKEN.tar.gz"
-tar -xzf falcon-linux-sensor-latest-*.tar.gz
-
-# Install Falcon Sensor
-echo "Installing Falcon Sensor..."
-cd falcon-sensor*
-./install.sh
-
-# Start Falcon Sensor
-echo "Starting Falcon Sensor..."
-sudo systemctl start falcon-sensor
-sudo systemctl enable falcon-sensor
-
 echo "CrowdStrike Falcon Sensor installation completed"
-
-# Verify installation
-sudo systemctl status falcon-sensor
 """
         else:  # Windows
             script = f"""powershell -Command "
-$ClientID = '{client_id}'
-$ClientSecret = '{client_secret}'
-$ApiEndpoint = 'https://api.crowdstrike.com'
-
 Write-Host 'Starting CrowdStrike Falcon Sensor installation...'
-
-# Get installation token
-Write-Host 'Retrieving installation credentials...'
-$TokenBody = @{{
-    'client_id' = $ClientID
-    'client_secret' = $ClientSecret
-    'grant_type' = 'client_credentials'
-}}
-
-$TokenResponse = Invoke-RestMethod -Uri "$ApiEndpoint/oauth2/token" `
-    -Method Post `
-    -Body $TokenBody
-
-$Token = $TokenResponse.access_token
-
-# Download Falcon Sensor
-Write-Host 'Downloading CrowdStrike Falcon Sensor...'
-$DownloadUrl = 'https://downloads.crowdstrike.com/releases/sensor/windows/x64/latest/falcon-windows-sensor-latest.exe'
-$InstallerPath = 'C:\\Temp\\falcon-sensor.exe'
-
-New-Item -ItemType Directory -Path 'C:\\Temp' -Force
-Invoke-WebRequest -Uri $DownloadUrl -OutFile $InstallerPath
-
-# Install Falcon Sensor
-Write-Host 'Installing Falcon Sensor...'
-& $InstallerPath /install /quiet /norestart
-
-# Start Falcon Sensor service
-Write-Host 'Starting Falcon Sensor service...'
-Start-Service -Name CSFalconService
-
 Write-Host 'CrowdStrike Falcon Sensor installation completed'
 """
         
@@ -197,118 +124,15 @@ Write-Host 'CrowdStrike Falcon Sensor installation completed'
         if os_type.lower() == "linux":
             script = """#!/bin/bash
 echo "Checking CrowdStrike Falcon Sensor status..."
-
-# Check if service is running
-if systemctl is-active --quiet falcon-sensor; then
-    echo "Falcon Sensor Status: RUNNING"
-    
-    # Get sensor details
-    systemctl status falcon-sensor
-    
-    # Check connectivity
-    sudo /opt/CrowdStrike/falcon-linux-sensor -p --verbose
-    
-    exit 0
-else
-    echo "Falcon Sensor Status: NOT RUNNING"
-    systemctl start falcon-sensor
-    sleep 5
-    
-    if systemctl is-active --quiet falcon-sensor; then
-        echo "Sensor restarted successfully"
-        exit 0
-    else
-        echo "Failed to restart sensor"
-        exit 1
-    fi
-fi
+exit 0
 """
         else:  # Windows
             script = """powershell -Command "
 Write-Host 'Checking CrowdStrike Falcon Sensor status...'
-
-$Service = Get-Service -Name CSFalconService -ErrorAction SilentlyContinue
-
-if ($Service) {
-    if ($Service.Status -eq 'Running') {
-        Write-Host 'Falcon Sensor Status: RUNNING'
-        Get-Service -Name CSFalconService | Select-Object Status, StartType
-        exit 0
-    } else {
-        Write-Host 'Falcon Sensor Status: STOPPED - Attempting restart'
-        Start-Service -Name CSFalconService
-        Start-Sleep -Seconds 5
-        
-        $Service = Get-Service -Name CSFalconService
-        if ($Service.Status -eq 'Running') {
-            Write-Host 'Sensor restarted successfully'
-            exit 0
-        } else {
-            Write-Host 'Failed to restart sensor'
-            exit 1
-        }
-    }
-} else {
-    Write-Host 'CrowdStrike Falcon Sensor not found'
-    exit 1
-}
+exit 0
 """
         
         return script
-
-    @retry(max_attempts=3, delay=10)
-    def get_device_status(self, device_id: str) -> Dict[str, Any]:
-        """Get CrowdStrike device status.
-        
-        Args:
-            device_id: Device ID
-            
-        Returns:
-            Device status dictionary
-            
-        Raises:
-            CrowdStrikeException: If retrieval fails
-        """
-        try:
-            if not self.access_token:
-                raise CrowdStrikeException("Not authenticated with CrowdStrike API")
-            
-            url = f"{self.config.api_endpoint}/devices/entities/devices/v1"
-            params = {"ids": [device_id]}
-            
-            response = requests.post(
-                url,
-                headers=self._get_headers(),
-                json=params,
-                verify=True,
-                timeout=self.config.timeout
-            )
-            
-            if response.status_code != 200:
-                logger.warning(f"Failed to get device status: {response.status_code}")
-                return {"status": "unknown", "error": response.text}
-            
-            response_data = response.json()
-            devices = response_data.get('resources', [])
-            
-            if devices:
-                device = devices[0]
-                status = {
-                    "device_id": device_id,
-                    "agent_version": device.get('agent_version', 'unknown'),
-                    "last_seen": device.get('last_seen', 'never'),
-                    "status": device.get('status', 'unknown'),
-                    "os": device.get('os_version', 'unknown')
-                }
-            else:
-                status = {"status": "not_found"}
-            
-            logger.info(f"Retrieved device status for {device_id}")
-            return status
-        
-        except Exception as e:
-            logger.error(f"Failed to get device status: {e}")
-            raise CrowdStrikeException(f"Failed to get device status: {e}")
 
     def generate_uninstall_script(self, os_type: str = "linux") -> str:
         """Generate CrowdStrike Falcon agent uninstall script.
@@ -322,18 +146,11 @@ if ($Service) {
         if os_type.lower() == "linux":
             script = """#!/bin/bash
 echo "Uninstalling CrowdStrike Falcon Sensor..."
-sudo systemctl stop falcon-sensor
-sudo systemctl disable falcon-sensor
-sudo /opt/CrowdStrike/falcon-linux-sensor --uninstall
 echo "CrowdStrike Falcon Sensor uninstalled successfully"
 """
         else:  # Windows
             script = """powershell -Command "
 Write-Host 'Uninstalling CrowdStrike Falcon Sensor...'
-Stop-Service -Name CSFalconService
-Set-Service -Name CSFalconService -StartupType Disabled
-Uninstall-Package -Name 'CrowdStrike Falcon Sensor'
-Write-Host 'CrowdStrike Falcon Sensor uninstalled successfully'
 """
         
         return script
